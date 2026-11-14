@@ -74,8 +74,10 @@
                 <configuration>
                     <compilerArgs>
                         <arg>-Xlint:deprecation</arg>
+                        <!-- necessário para o Spring ler o nome dos @RequestParam e @PathVariable -->
+                        <arg>-parameters</arg>
                     </compilerArgs>
-                    <release>23</release>
+                    <release>17</release>
                 </configuration>
             </plugin>
             <plugin>
