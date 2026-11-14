@@ -1,7 +1,7 @@
-node_modules/
-data/*.db
-data/*.db-*
-.env
-.vscode/
+target/
+nb-configuration.xml
 .idea/
+*.iml
+.vscode/
+.env
 *.log
