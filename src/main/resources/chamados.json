@@ -3,8 +3,12 @@
     "$oid": "675b1fa1d64af05ea59ee7d3"
   },
   "descricao": "Chamado de Teste",
-  "status": "Aberto",
-  "Tipo": "Manutenção",
+  "status": "ABERTO",
+  "tipo": "Manutenção",
+  "prioridade": "MEDIA",
   "tecnico": "João",
-  "usuario": "Alberto"
+  "usuario": "Alberto",
+  "dataAbertura": { "$date": "2026-11-10T09:30:00Z" },
+  "dataFechamento": null,
+  "consideracoes": []
 }
