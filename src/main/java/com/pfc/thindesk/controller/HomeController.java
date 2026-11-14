@@ -41,6 +41,13 @@ public class HomeController {
         return modelAndView;
     }
 
+    // Dashboard administrativo: a página só monta a estrutura,
+    // os dados são carregados pelo JavaScript a partir da API /api/dashboard
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard";
+    }
+
     @GetMapping("/chamados")
     public String chamados(Model model) {
         List<Chamado> chamados = chamadoService.listarChamados();
