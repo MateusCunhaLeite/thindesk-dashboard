@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard - Thindesk</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    </head>
+
+    <body>
+        <!-- Sidebar incluído como fragmento -->
+        <aside>
+            <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        </aside>
+
+        <!-- Botão para abrir/fechar a sidebar em telas pequenas -->
+        <div class="toggle-btn btn btn-dark d-md-none">
+            <span>&#9776;</span>
+        </div>
+
+        <main id="content" class="bg-light">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <h2 class="mb-0">Dashboard Administrativo</h2>
+                    <small class="text-muted">Acompanhamento dos chamados técnicos</small>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <small class="text-muted" id="ultima-atualizacao">Carregando...</small>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="auto-atualizar" checked>
+                        <label class="form-check-label" for="auto-atualizar">Atualizar a cada 60s</label>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-atualizar">
+                        <i class="bi bi-arrow-clockwise"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div id="alerta" class="alert d-none" role="alert"></div>
+
+            <!-- RF05 - Filtros -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form id="form-filtros" class="row g-2 align-items-end">
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label small fw-semibold" for="f-inicio">De</label>
+                            <input type="date" class="form-control form-control-sm" id="f-inicio" name="inicio">
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label small fw-semibold" for="f-fim">Até</label>
+                            <input type="date" class="form-control form-control-sm" id="f-fim" name="fim">
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label small fw-semibold" for="f-status">Status</label>
+                            <select class="form-select form-select-sm" id="f-status" name="status"><option value="">Todos</option></select>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label small fw-semibold" for="f-tipo">Tipo</label>
+                            <select class="form-select form-select-sm" id="f-tipo" name="tipo"><option value="">Todos</option></select>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label small fw-semibold" for="f-prioridade">Prioridade</label>
+                            <select class="form-select form-select-sm" id="f-prioridade" name="prioridade"><option value="">Todas</option></select>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <label class="form-label small fw-semibold" for="f-tecnico">Técnico</label>
+                            <select class="form-select form-select-sm" id="f-tecnico" name="tecnico"><option value="">Todos</option></select>
+                        </div>
+                        <div class="col-12 d-flex flex-wrap align-items-center gap-2 mt-3">
+                            <span class="small text-muted">Período rápido:</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary atalho" data-dias="7">7 dias</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary atalho" data-dias="30">30 dias</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary atalho" data-dias="90">90 dias</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary atalho" data-dias="180">6 meses</button>
+                            <div class="ms-auto d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-limpar">Limpar</button>
+                                <button type="submit" class="btn btn-sm btn-primary">Aplicar filtros</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RF01 - Indicadores gerais -->
+            <div class="row g-3 mb-3">
+                <div class="col-6 col-lg-4 col-xxl-2">
+                    <div class="card indicador h-100"><div class="card-body">
+                        <div class="text-muted small">Total de chamados</div>
+                        <div class="valor" id="kpi-total">-</div>
+                        <small class="text-muted" id="kpi-total-sub">&nbsp;</small>
+                    </div></div>
+                </div>
+                <div class="col-6 col-lg-4 col-xxl-2">
+                    <div class="card indicador indicador-aviso h-100"><div class="card-body">
+                        <div class="text-muted small">Pendentes</div>
+                        <div class="valor" id="kpi-pendentes">-</div>
+                        <small class="text-muted" id="kpi-pendentes-sub">&nbsp;</small>
+                    </div></div>
+                </div>
+                <div class="col-6 col-lg-4 col-xxl-2">
+                    <div class="card indicador indicador-sucesso h-100"><div class="card-body">
+                        <div class="text-muted small">Concluídos</div>
+                        <div class="valor" id="kpi-concluidos">-</div>
+                        <small class="text-muted" id="kpi-concluidos-sub">&nbsp;</small>
+                    </div></div>
+                </div>
+                <div class="col-6 col-lg-4 col-xxl-2">
+                    <div class="card indicador h-100"><div class="card-body">
+                        <div class="text-muted small">Tempo médio de resolução</div>
+                        <div class="valor" id="kpi-tempo">-</div>
+                        <small class="text-muted">da abertura até a solução</small>
+                    </div></div>
+                </div>
+                <div class="col-6 col-lg-4 col-xxl-2">
+                    <div class="card indicador indicador-sucesso h-100"><div class="card-body">
+                        <div class="text-muted small">Resolvidos dentro do SLA</div>
+                        <div class="valor" id="kpi-sla">-</div>
+                        <small class="text-muted">dos chamados concluídos</small>
+                    </div></div>
+                </div>
+                <div class="col-6 col-lg-4 col-xxl-2">
+                    <div class="card indicador indicador-perigo h-100"><div class="card-body">
+                        <div class="text-muted small">Pendentes fora do prazo</div>
+                        <div class="valor text-danger" id="kpi-atrasados">-</div>
+                        <small class="text-muted" id="kpi-atrasados-sub">&nbsp;</small>
+                    </div></div>
+                </div>
+            </div>
+
+            <!-- RF02 - Chamados por período -->
+            <div class="card mb-3">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Chamados abertos x concluídos por período</span>
+                    <select class="form-select form-select-sm w-auto" id="agrupamento">
+                        <option value="dia">Por dia</option>
+                        <option value="semana" selected>Por semana</option>
+                        <option value="mes">Por mês</option>
+                    </select>
+                </div>
+                <div class="card-body"><div class="grafico grafico-alto"><canvas id="grafico-periodo"></canvas></div></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- RF03 - Situação dos chamados -->
+                <div class="col-xl-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-white fw-semibold">Situação dos chamados</div>
+                        <div class="card-body"><div class="grafico"><canvas id="grafico-status"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-white fw-semibold">Chamados por prioridade</div>
+                        <div class="card-body"><div class="grafico"><canvas id="grafico-prioridade"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- RF04 - Tipos de chamados mais atendidos -->
+                <div class="col-xl-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-white fw-semibold">Tipos de chamados mais atendidos</div>
+                        <div class="card-body"><div class="grafico"><canvas id="grafico-tipos"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-white fw-semibold">Desempenho por técnico</div>
+                        <div class="card-body table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Técnico</th>
+                                        <th class="text-end">Atendidos</th>
+                                        <th class="text-end">Pendentes</th>
+                                        <th class="text-end">No prazo</th>
+                                        <th class="text-end">Tempo médio</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-tecnicos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de chamados filtrados -->
+            <div class="card mb-4">
+                <div class="card-header bg-white fw-semibold">Chamados</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Tipo</th>
+                                <th>Prioridade</th>
+                                <th>Status</th>
+                                <th>Técnico</th>
+                                <th>Usuário</th>
+                                <th>Abertura</th>
+                                <th class="text-end">Tempo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-chamados"></tbody>
+                    </table>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="info-paginacao"></small>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" id="pag-anterior">Anterior</button>
+                            <button class="btn btn-outline-secondary" id="pag-proxima">Próxima</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Detalhe do chamado (abre ao clicar numa linha da tabela) -->
+        <div class="modal fade" id="modal-chamado" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-titulo">Chamado</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body" id="modal-corpo"></div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+        <script th:src="@{/js/script.js}"></script>
+        <script th:src="@{/js/dashboard.js}"></script>
+    </body>
+</html>

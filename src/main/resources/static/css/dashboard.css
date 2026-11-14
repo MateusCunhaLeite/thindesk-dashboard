@@ -1,0 +1,92 @@
+/* Estilos da página de dashboard */
+
+#content {
+    min-width: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#content.carregando {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.indicador {
+    border-left: 4px solid #0d6efd;
+}
+
+.indicador-sucesso {
+    border-left-color: #198754;
+}
+
+.indicador-aviso {
+    border-left-color: #ffc107;
+}
+
+.indicador-perigo {
+    border-left-color: #dc3545;
+}
+
+.indicador .valor {
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.grafico {
+    position: relative;
+    height: 280px;
+}
+
+.grafico-alto {
+    height: 320px;
+}
+
+#tabela-chamados tr {
+    cursor: pointer;
+}
+
+.atrasado {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* cores dos status */
+.status-ABERTO       { background-color: #cfe2ff; color: #084298; }
+.status-EM_ANDAMENTO { background-color: #fff3cd; color: #664d03; }
+.status-AGUARDANDO   { background-color: #e2d9f3; color: #432874; }
+.status-CONCLUIDO    { background-color: #d1e7dd; color: #0f5132; }
+.status-CANCELADO    { background-color: #f8d7da; color: #842029; }
+
+.prioridade-BAIXA   { background-color: #e9ecef; color: #495057; }
+.prioridade-MEDIA   { background-color: #cfe2ff; color: #084298; }
+.prioridade-ALTA    { background-color: #ffe5d0; color: #984c0c; }
+.prioridade-CRITICA { background-color: #f8d7da; color: #842029; }
+
+.linha-tempo {
+    list-style: none;
+    padding-left: 1rem;
+    border-left: 2px solid #dee2e6;
+}
+
+.linha-tempo li {
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.linha-tempo li::before {
+    content: "";
+    position: absolute;
+    left: -1.42rem;
+    top: 0.35rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+}
+
+@media (max-width: 768px) {
+    #content {
+        padding-top: 60px;
+    }
+}
